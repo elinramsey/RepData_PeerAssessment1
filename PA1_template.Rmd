@@ -1,0 +1,165 @@
+---
+title: "Peer Assessment 1"
+output: html_document
+---
+
+This is a submission for Reproduceable Reasearch, peer assessment 1.
+
+First load the data into a data frame named "activity" and load lattice and plyr.
+
+```{r}
+setwd("~/Documents/CourseraDS")
+activity = read.csv("activity.csv")
+library(package = "lattice")
+library(plyr)
+```
+
+#Transform the data
+
+Change date column to be in date format
+
+```{r}
+activity$date <- as.Date(activity$date)
+```
+
+Ignore missing values
+
+```{r}
+activity_c <- activity[complete.cases(activity),]
+```
+
+
+
+
+#What is mean total number of steps taken per day?
+
+Create a data set grouped by day:
+```{r}
+activity_byDay <- aggregate(activity_c$steps, by=list(date = activity_c$date), FUN = sum)
+```
+
+Histogram of steps by day: 
+
+```{r}
+hist(activity_byDay$x)
+```
+
+
+Mean:
+```{r}
+mean(activity_byDay$x)
+```
+
+Median
+```{r}
+median(activity_byDay$x)
+```
+
+
+#What is the average daily activity pattern?
+
+Create dataframe grouped by interval
+
+```{r}
+activity_byInt <- aggregate(activity_c$steps, by=list(Int = activity_c$interval), FUN = mean)
+```
+
+Plot average activity by interval
+
+```{r}
+plot(activity_byInt$Int,activity_byInt$x, type = "l")
+```
+
+The interval with the max average step count
+
+```{r}
+max_step <- max(activity_byInt$x)
+activity_byInt[activity_byInt$x == max_step,]
+```
+
+#Imputing missing values
+
+
+Number of missing values.
+
+```{r}
+sum(is.na(activity))
+```
+
+I will replace missing values with the mean of steps in the cleaned dataframe.
+
+```{r}
+meanStep <- mean(activity_c$steps)
+activity_impute <- activity
+activity_impute[is.na(activity_impute)] <- meanStep
+```
+
+Group the cleaned data by day.
+```{r}
+activity_imp_byDay <- aggregate(activity_impute$steps, by=list(date = activity_impute$date), FUN = sum)
+```
+
+Make a histogram. Multiply by 1 to force coercian from factor.
+```{r}
+hist(activity_imp_byDay$x * 1)
+```
+
+Mean:
+```{r}
+mean(activity_imp_byDay$x)
+```
+
+Median
+```{r}
+median(activity_imp_byDay$x)
+```
+
+The imputation of missing values has the effect of making the median very close to the mean. The histogram also has a higher frequency in the center bucket.
+
+#Differences between weekdays and weekends
+
+Modify data set to contain weekday data
+```{r}
+activity_impute[,'Weekday'] = weekdays(activity_impute$date)
+activity_impute[,'IsWeekend'] <- ifelse((activity_impute$Weekday == "Saturday" | activity_impute$Weekday == "Sunday"), "Weekend","Weekday" )
+```
+
+Create dataframe grouped by interval
+
+```{r}
+activity_imp_byInt <- aggregate(activity_impute$steps, by=list(Int = activity_impute$interval,IsWeekend = activity_impute$IsWeekend), FUN = mean)
+```
+
+Graph the results.
+```{r}
+xyplot(x ~ Int | IsWeekend, data = activity_imp_byInt, type = "l",layout = (c(1,2)))
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
